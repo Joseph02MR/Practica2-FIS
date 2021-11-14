@@ -7,8 +7,12 @@ La práctica está creada en base a un proyecto en lenguaje de scripting Wren en
 
 Integrantes del equipo:
 
-Jorgé Álvarez
+Jorgé Álvarez 
+
 Dante Camacho
+
 Iván León
+
 José Montero
+
 Hannah Mota
