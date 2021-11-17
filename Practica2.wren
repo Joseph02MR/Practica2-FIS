@@ -3,26 +3,60 @@
 // desc:   Practica 2 FIS
 // script: wren
 import "random" for Random
+var BtnLen = 46
+var BtnWid = 14
+var BtnY = 110
 
 class Game is TIC{
 
 	construct new(){
 		_t=0
-		_aux = []
-		_main = []
+		_aux = [0]
+		_main = [0,0,0,0,0]
+		_mats = {
+			0:"",
+			1:"ACEITE",
+			2:" AGUA ",
+			3:"HIERRO"
+		}
+		_palGen = 0
+
+		//mouse params
+		_x = 0
+		_y = 0
+		_lclic = false
+
+		//auxiliares logicos
+		_generarOn = true
+		_vaciarOn = false
+		_salirOn = false
 	}
 
 	generarPalabra(){
 		var ran = Random.new()
-		var a = ran.int(0,3)
-		if(a == 0){
-			return "ACEITE"
-		}
-		if(a == 1){
-			return " AGUA "
-		}
-		if(a == 2){
-			return "HIERRO"
+		var a = ran.int(1,3)
+		_aux.clear()
+		_aux.add(a)
+		_palGen=_palGen+1
+	}
+	vaciarPalabra(){
+		var palabra = _aux.removeAt(0)
+		_aux.add(0)
+		_main[_palGen-1]=palabra
+		ordenarDensidad()
+	}
+
+	ordenarDensidad(){
+		var draw = Fiber.new(){print_main()}
+		for(i in 1..5){
+			for(j in 1..5-i){
+				if(_main[j-1]>_main[j]){
+					var aux = _main[j-1]
+					_main[j-1] = _main[j]
+					_main[j] = aux
+				}
+				draw.call()
+			}
 		}
 	}
 
@@ -35,23 +69,122 @@ class Game is TIC{
 		TIC.spr(274,120,37,8,4,0,0,2,2)
 		TIC.spr(258,120,5,8,4,0,0,2,1)
 		//botones: generar, vaciar y salir
-		TIC.spr(260,30,110,8,1,0,0,6,2)
-		TIC.spr(324,100,110,8,1,0,0,6,2)
-		TIC.spr(292,170,110,8,1,0,0,6,2)
+		TIC.spr(260,30,BtnY,8,1,0,0,6,2)
+		TIC.spr(324,100,BtnY,8,1,0,0,6,2)
+		TIC.spr(292,170,BtnY,8,1,0,0,6,2)
+	}
+
+	updatePalette(){
+		var PALETTE_MAP = 0x3FF0
+		var g1 = 6
+		var g2 = 5
+		var r1 = 2
+		var r2 = 4
+		var o1 = 3
+		var o2 = 11
+
+		if(_generarOn){
+			TIC.poke4(PALETTE_MAP * 2 + g1, g1)
+		}else{
+			TIC.poke4(PALETTE_MAP * 2 + g1, g2)
+		}
+		if(_vaciarOn){
+			TIC.poke4(PALETTE_MAP * 2 + o1, o1)
+		}else{
+			TIC.poke4(PALETTE_MAP * 2 + o1, o2)
+		}
+		if(_salirOn){
+			TIC.poke4(PALETTE_MAP * 2 + r1, r1)
+		}else{
+			TIC.poke4(PALETTE_MAP * 2 + r1, r2)
+		}
+	}
+
+	print_aux(){
+		TIC.print("%(_mats[_aux[0]])",67,75,1)
+	}
+
+	print_main(){
+		for(i in 0...5){
+			TIC.print("%(_mats[_main[i]])", 137, 85-(17*i))
+		}
+	}
+
+	btnGenerar(){
+		if(_lclic && _t%6==0){
+			if(_generarOn){
+				if((31..(31+BtnLen)).contains(_x)){
+					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(_y)){
+						generarPalabra()
+						_generarOn = false
+						_vaciarOn = true
+					}
+				}
+			}
+		}
+	}
+	btnVaciar(){
+		if(_lclic && _t%6==0){
+			if(_vaciarOn){
+				if((101..(101+BtnLen)).contains(_x)){
+					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(_y)){
+						vaciarPalabra()
+						_vaciarOn = false
+						if(_palGen = 5 ){
+							_salirOn = true
+						} else{
+							_generarOn = true
+						}
+					}
+				}
+			}
+		}
+	}
+	btnSalir(){
+		if(_lclic && _t%6==0){
+			if(_salirOn){
+				if((171..(171+BtnLen)).contains(_x)){
+					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(_y)){
+						//TIC.exit()
+					}
+				}
+			}
+		}
 	}
 
 //ciclo principal de la aplicacion
 	TIC(){
+		//array mouse params
+
+		var arr = List.new()
+		arr = TIC.mouse()
+
+		_lclic = arr[2]
+		_x = arr[0]
+		_y = arr[1]
+
+		updatePalette()
 		draw_interfaz()
-
-		//palabras prueba
-		TIC.print("HIERRO",67,75,1)
-
-
+		print_aux()
+		print_main()
 
 		//debug
-		TIC.print("%(generarPalabra())",67,75,1)
+		//mouse param
+		for(i in 0...arr.count){
+			TIC.print("%(arr[i])",0,i*6)
+		}
+		for(i in 0...5){
+			TIC.print("%(_main[i])",10,90+(i*6))
+		}
+		TIC.print("%(_main[0])",10,50)
+		TIC.print("%(_generarOn)",10,56)
+		TIC.print("%(_vaciarOn)",10,62)
+		TIC.print("%(_salirOn)",10,68)
+		TIC.print("%(_t)",220,1)
+		TIC.print("%(BtnLen)",220,7)
+		TIC.print("%(BtnWid)",220,15)
 
+		_t=_t+1
 	}
 }
 
@@ -87,8 +220,8 @@ class Game is TIC{
 // 025:0006666006606660066066600660666066666608666660886666088800008888
 // 032:80dddddd80dddddd80dddddd80dddddd80ddcddd880dcddd880ddcdd88800000
 // 033:ddddde08ddddde08ddddde08ddddde08ddddde08dddde088dddee08800000888
-// 034:880ddcdd880ddcdd8800dddd880ddddd880ddddd880ddddd820ddddd22222222
-// 035:dddde088dddde088dddde088dddde088dddde088dddde088dddde02822222222
+// 034:880ddcdd880ddcdd8800dddd880ddddd880ddddd880ddddd890ddddd99999999
+// 035:dddde088dddde088dddde088dddde088dddde088dddde088dddde09899999999
 // 036:8888000088802222880222228022222202222222022222220222222202222222
 // 037:0000000022222222222222222222222222000002220020022200222222000002
 // 038:0000000022222222222222222222222220000220002200200022002000000020
@@ -126,5 +259,5 @@ class Game is TIC{
 // </SFX>
 
 // <PALETTE>
-// 000:1a1c2c000000b13e53ef7d57ffcd75a7f07038b764257179ffffff3b5dc941a6f673eff7f4f4f494b0c2566c86333c57
+// 000:1a1c2c000000b13e53ef7d578d00080c613c38b764257179ffffffb13e5341a6f68d4428f4f4f494b0c2566c86333c57
 // </PALETTE>
