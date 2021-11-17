@@ -40,16 +40,13 @@ class Game is TIC{
 		TIC.spr(292,170,110,8,1,0,0,6,2)
 	}
 
+//ciclo principal de la aplicacion
 	TIC(){
 		draw_interfaz()
 
 		//palabras prueba
-		//TIC.print("HIERRO",67,75,1)
-		/*
-		TIC.print(" AGUA",137,68,1)
-		TIC.print("ACEITE",137,85,1)
-		TIC.print("HIERRO",137,47,1)
-		*/
+		TIC.print("HIERRO",67,75,1)
+
 
 
 		//debug
