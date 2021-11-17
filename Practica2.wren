@@ -34,7 +34,7 @@ class Game is TIC{
 
 	generarPalabra(){
 		var ran = Random.new()
-		var a = ran.int(1,3)
+		var a = ran.int(1,4)
 		_aux.clear()
 		_aux.add(a)
 		_palGen=_palGen+1
@@ -42,20 +42,16 @@ class Game is TIC{
 	vaciarPalabra(){
 		var palabra = _aux.removeAt(0)
 		_aux.add(0)
-		_main[_palGen-1]=palabra
+		_main[0]=palabra
 		ordenarDensidad()
 	}
 
 	ordenarDensidad(){
-		var draw = Fiber.new(){print_main()}
-		for(i in 1..5){
+		for(i in 1...5){
 			for(j in 1..5-i){
 				if(_main[j-1]>_main[j]){
-					var aux = _main[j-1]
-					_main[j-1] = _main[j]
-					_main[j] = aux
+					_main.swap(j-1,j)
 				}
-				draw.call()
 			}
 		}
 	}
@@ -106,7 +102,7 @@ class Game is TIC{
 
 	print_main(){
 		for(i in 0...5){
-			TIC.print("%(_mats[_main[i]])", 137, 85-(17*i))
+			TIC.print("%(_mats[_main[i]])", 137, 17+(17*i))
 		}
 	}
 
@@ -130,7 +126,7 @@ class Game is TIC{
 					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(_y)){
 						vaciarPalabra()
 						_vaciarOn = false
-						if(_palGen = 5 ){
+						if(_palGen == 5 ){
 							_salirOn = true
 						} else{
 							_generarOn = true
@@ -145,7 +141,7 @@ class Game is TIC{
 			if(_salirOn){
 				if((171..(171+BtnLen)).contains(_x)){
 					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(_y)){
-						//TIC.exit()
+						TIC.exit()
 					}
 				}
 			}
@@ -165,6 +161,9 @@ class Game is TIC{
 
 		updatePalette()
 		draw_interfaz()
+		btnGenerar()
+		btnVaciar()
+		btnSalir()
 		print_aux()
 		print_main()
 
