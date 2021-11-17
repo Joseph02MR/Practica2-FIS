@@ -2,18 +2,33 @@
 // author: eqa
 // desc:   Practica 2 FIS
 // script: wren
+import "random" for Random
 
 class Game is TIC{
 
 	construct new(){
 		_t=0
+		_aux = []
+		_main = []
 	}
 
-	TIC(){
+	generarPalabra(){
+		var ran = Random.new()
+		var a = ran.int(0,3)
+		if(a == 0){
+			return "ACEITE"
+		}
+		if(a == 1){
+			return " AGUA "
+		}
+		if(a == 2){
+			return "HIERRO"
+		}
+	}
 
+	draw_interfaz(){
 		//color fondo
 		TIC.cls(7)
-
 		//vaso auxiliar
 		TIC.spr(272,60,53,8,3,0,0,2,2)
 		//vaso principal (en dos partes)
@@ -23,12 +38,23 @@ class Game is TIC{
 		TIC.spr(260,30,110,8,1,0,0,6,2)
 		TIC.spr(324,100,110,8,1,0,0,6,2)
 		TIC.spr(292,170,110,8,1,0,0,6,2)
+	}
 
-		//palabras
-		TIC.print("HIERRO",67,75,1)
+	TIC(){
+		draw_interfaz()
+
+		//palabras prueba
+		//TIC.print("HIERRO",67,75,1)
+		/*
 		TIC.print(" AGUA",137,68,1)
 		TIC.print("ACEITE",137,85,1)
 		TIC.print("HIERRO",137,47,1)
+		*/
+
+
+		//debug
+		TIC.print("%(generarPalabra())",67,75,1)
+
 	}
 }
 
