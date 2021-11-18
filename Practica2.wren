@@ -4,26 +4,52 @@
 // script: wren
 import "random" for Random
 
+//button params
+var BtnLen = 46
+var BtnWid = 14
+var BtnY = 110
+
+//mouse params
+var X = 0
+var Y = 0
+var Lclic = false
+
 class Game is TIC{
 
 	construct new(){
 		_t=0
-		_aux = []
-		_main = []
+		_aux = [0]
+		_main = [0,0,0,0,0]
+		_mats = {
+			0:"",
+			1:"ACEITE",
+			2:" AGUA ",
+			3:"HIERRO"
+		}
+		_generarOn = true
 	}
 
 	generarPalabra(){
 		var ran = Random.new()
-		var a = ran.int(0,3)
-		if(a == 0){
-			return "ACEITE"
+		var a = ran.int(1,4)
+		_aux.clear()
+		_aux.add(a)
+	}
+
+	btnGenerar(){
+		if(Lclic && _t%6==0){
+			if(_generarOn){
+				if((31..(31+BtnLen)).contains(X)){
+					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(Y)){
+						generarPalabra()
+						_generarOn = false
+					}
+				}
+			}
 		}
-		if(a == 1){
-			return " AGUA "
-		}
-		if(a == 2){
-			return "HIERRO"
-		}
+	}
+	print_aux(){
+		TIC.print("%(_mats[_aux[0]])",67,75,1)
 	}
 
 	draw_interfaz(){
@@ -35,22 +61,53 @@ class Game is TIC{
 		TIC.spr(274,120,37,8,4,0,0,2,2)
 		TIC.spr(258,120,5,8,4,0,0,2,1)
 		//botones: generar, vaciar y salir
-		TIC.spr(260,30,110,8,1,0,0,6,2)
-		TIC.spr(324,100,110,8,1,0,0,6,2)
-		TIC.spr(292,170,110,8,1,0,0,6,2)
+		TIC.spr(260,30,BtnY,8,1,0,0,6,2)
+		TIC.spr(324,100,BtnY,8,1,0,0,6,2)
+		TIC.spr(292,170,BtnY,8,1,0,0,6,2)
+	}
+
+	//cambia los colores en la paleta para visualizar cambios de estado
+	updatePalette(){
+		var PALETTE_MAP = 0x3FF0
+		var g1 = 6
+		var g2 = 5
+
+		if(_generarOn){
+			TIC.poke4(PALETTE_MAP * 2 + g1, g1)
+		}else{
+			TIC.poke4(PALETTE_MAP * 2 + g1, g2)
+		}
 	}
 
 //ciclo principal de la aplicacion
 	TIC(){
+		var arr = List.new()
+		arr = TIC.mouse()
+		Lclic = arr[2]
+		X = arr[0]
+		Y = arr[1]
+
+		updatePalette()
 		draw_interfaz()
-
-		//palabras prueba
-		TIC.print("HIERRO",67,75,1)
-
+		btnGenerar()
+		print_aux()
 
 
+		_t=_t+1
+
+		/*
 		//debug
-		TIC.print("%(generarPalabra())",67,75,1)
+		//mouse param
+		for(i in 0...arr.count){
+			TIC.print("%(arr[i])",0,i*6)
+		}
+		for(i in 0...5){
+			TIC.print("%(_main[i])",10,90+(i*6))
+		}
+		TIC.print("%(_aux[0])",10,50)
+		TIC.print("%(_generarOn)",10,56)
+		TIC.print("%(_t)",220,1)
+		*/
 
 	}
 }
@@ -126,5 +183,5 @@ class Game is TIC{
 // </SFX>
 
 // <PALETTE>
-// 000:1a1c2c000000b13e53ef7d57ffcd75a7f07038b764257179ffffff3b5dc941a6f673eff7f4f4f494b0c2566c86333c57
+// 000:1a1c2c000000b13e53ef7d578d00080c613c38b764257179ffffffb13e5341a6f68d4428f4f4f494b0c2566c86333c57
 // </PALETTE>
