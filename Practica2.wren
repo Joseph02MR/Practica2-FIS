@@ -27,8 +27,10 @@ class Game is TIC{
 			3:"HIERRO"
 		}
 		_generarOn = true
+		_vaciarOn = false
 	}
 
+//generacion de palabras y dibujado en auxiliar
 	generarPalabra(){
 		var ran = Random.new()
 		var a = ran.int(1,4)
@@ -43,6 +45,7 @@ class Game is TIC{
 					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(Y)){
 						generarPalabra()
 						_generarOn = false
+						_vaciarOn = true
 					}
 				}
 			}
@@ -52,6 +55,42 @@ class Game is TIC{
 		TIC.print("%(_mats[_aux[0]])",67,75,1)
 	}
 
+//vaciado ordenado y dibujado de palabras en el principal
+	vaciarPalabra(){
+		var palabra = _aux.removeAt(0)
+		_aux.add(0)
+		_main[0]=palabra
+		ordenarDensidad()
+	}
+	ordenarDensidad(){
+		for(i in 1...5){
+			for(j in 1..5-i){
+				if(_main[j-1]>_main[j]){
+					_main.swap(j-1,j)
+				}
+			}
+		}
+	}
+	btnVaciar(){
+		if(Lclic && _t%6==0){
+			if(_vaciarOn){
+				if((101..(101+BtnLen)).contains(X)){
+					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(Y)){
+						vaciarPalabra()
+						_vaciarOn = false
+						_generarOn = true
+					}
+				}
+			}
+		}
+	}
+	print_main(){
+		for(i in 0...5){
+			TIC.print("%(_mats[_main[i]])", 137, 17+(17*i))
+		}
+	}
+
+//metodos de dibujado de los elementos
 	draw_interfaz(){
 		//color fondo
 		TIC.cls(7)
@@ -71,11 +110,20 @@ class Game is TIC{
 		var PALETTE_MAP = 0x3FF0
 		var g1 = 6
 		var g2 = 5
+		var o1 = 3
+		var o2 = 11
 
+		//boton generar
 		if(_generarOn){
 			TIC.poke4(PALETTE_MAP * 2 + g1, g1)
 		}else{
 			TIC.poke4(PALETTE_MAP * 2 + g1, g2)
+		}
+		//boton vaciar
+		if(_vaciarOn){
+			TIC.poke4(PALETTE_MAP * 2 + o1, o1)
+		}else{
+			TIC.poke4(PALETTE_MAP * 2 + o1, o2)
 		}
 	}
 
@@ -90,12 +138,14 @@ class Game is TIC{
 		updatePalette()
 		draw_interfaz()
 		btnGenerar()
-		print_aux()
+		btnVaciar()
 
+		print_aux()
+		print_main()
 
 		_t=_t+1
 
-		/*
+/*
 		//debug
 		//mouse param
 		for(i in 0...arr.count){
@@ -106,8 +156,9 @@ class Game is TIC{
 		}
 		TIC.print("%(_aux[0])",10,50)
 		TIC.print("%(_generarOn)",10,56)
+		TIC.print("%(_vaciarOn)",10,62)
 		TIC.print("%(_t)",220,1)
-		*/
+*/
 
 	}
 }
