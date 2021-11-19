@@ -2,6 +2,7 @@
 // author: eqa
 // desc:   Practica 2 FIS
 // script: wren
+
 import "random" for Random
 
 //button params
@@ -26,8 +27,10 @@ class Game is TIC{
 			2:" AGUA ",
 			3:"HIERRO"
 		}
+		_palGen = 0
 		_generarOn = true
 		_vaciarOn = false
+		_salirOn = false
 	}
 
 //generacion de palabras y dibujado en auxiliar
@@ -36,6 +39,8 @@ class Game is TIC{
 		var a = ran.int(1,4)
 		_aux.clear()
 		_aux.add(a)
+		//incremento del contador de palabras (volumen)
+		_palGen=_palGen+1
 	}
 
 	btnGenerar(){
@@ -78,7 +83,12 @@ class Game is TIC{
 					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(Y)){
 						vaciarPalabra()
 						_vaciarOn = false
-						_generarOn = true
+						//logica de finalizacion del vaciado
+						if(_palGen == 5 ){
+							_salirOn = true
+						} else{
+							_generarOn = true
+						}
 					}
 				}
 			}
@@ -87,6 +97,18 @@ class Game is TIC{
 	print_main(){
 		for(i in 0...5){
 			TIC.print("%(_mats[_main[i]])", 137, 17+(17*i))
+		}
+	}
+	//finalizacion del programa cuando se hace clic salir y el vaso esta lleno
+	btnSalir(){
+		if(Lclic && _t%6==0){
+			if(_salirOn){
+				if((171..(171+BtnLen)).contains(X)){
+					if(((BtnY+1)..(BtnY+1+BtnWid)).contains(Y)){
+						TIC.exit()
+					}
+				}
+			}
 		}
 	}
 
@@ -112,6 +134,8 @@ class Game is TIC{
 		var g2 = 5
 		var o1 = 3
 		var o2 = 11
+		var r1 = 2
+		var r2 = 4
 
 		//boton generar
 		if(_generarOn){
@@ -125,24 +149,38 @@ class Game is TIC{
 		}else{
 			TIC.poke4(PALETTE_MAP * 2 + o1, o2)
 		}
+		//boton salir
+		if(_salirOn){
+			TIC.poke4(PALETTE_MAP * 2 + r1, r1)
+		}else{
+			TIC.poke4(PALETTE_MAP * 2 + r1, r2)
+		}
+
 	}
 
 //ciclo principal de la aplicacion
 	TIC(){
+		//lectura del mouse
 		var arr = List.new()
 		arr = TIC.mouse()
 		Lclic = arr[2]
 		X = arr[0]
 		Y = arr[1]
 
+		//actualizacion de la interfaz
 		updatePalette()
 		draw_interfaz()
+
+		//logica de los botones
 		btnGenerar()
 		btnVaciar()
+		btnSalir()
 
+		//dibujado de las palabras
 		print_aux()
 		print_main()
 
+		//tiempo
 		_t=_t+1
 
 /*
@@ -157,6 +195,7 @@ class Game is TIC{
 		TIC.print("%(_aux[0])",10,50)
 		TIC.print("%(_generarOn)",10,56)
 		TIC.print("%(_vaciarOn)",10,62)
+		TIC.print("%(_salirOn)",10,68)
 		TIC.print("%(_t)",220,1)
 */
 
